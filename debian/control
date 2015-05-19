@@ -7,6 +7,6 @@ Standards-Version: 3.9.1
 
 Package: python-postfix-stats
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
-Description: Simple threaded stats aggregator for Postfix. When running a
+Depends: ${misc:Depends}, ${python:Depends}, syslog-ng
+Description: Simple threaded stats aggregator for Postfix.
 
