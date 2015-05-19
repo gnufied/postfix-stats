@@ -44,11 +44,18 @@ Primary use is as a syslog destination
 
 Create ``postfix_stats.sh`` that calls postfix_stats.py with the arguments you wish to use
 
+
+/etc/rsyslog.d/postfix_stats.conf
 ::
 
     $ModLoad omprog
     $actionomprogbinary /usr/bin/postfix_stats.sh
     :syslogtag, startswith, "postfix" :omprog:;RSYSLOG_TraditionalFileFormat
+
+/usr/bin/postfix_stats.sh
+::
+    #!/bin/bash
+    /usr/bin/postfix_stats.py -d
 
 **tail**
 
