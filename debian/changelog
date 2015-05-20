@@ -1,3 +1,9 @@
+postfix-stats (0.3.2-1ubuntu2) unstable; urgency=medium
+
+  * create link to postfix-stats 
+
+ -- root <root@server.fliphess.com>  Wed, 20 May 2015 14:52:27 +0200
+
 postfix-stats (0.3.2-1ubuntu1) unstable; urgency=medium
 
   * add config files for syslog ng
