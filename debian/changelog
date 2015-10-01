@@ -1,3 +1,9 @@
+postfix-stats (0.3.2-1ubuntu5) unstable; urgency=medium
+
+  * fix postinstall script
+
+ -- root <root@server.fliphess.com>  Thu, 01 Oct 2015 22:56:33 +0200
+
 postfix-stats (0.3.2-1ubuntu3) unstable; urgency=medium
 
   * reload syslog-ng after install
