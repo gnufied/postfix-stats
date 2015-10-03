@@ -1,3 +1,10 @@
+postfix-stats (0.3.2-1ubuntu6) UNRELEASED; urgency=medium
+
+  * fix postinstall script pt2
+
+
+ -- root <root@server.fliphess.com>  Sat, 03 Oct 2015 19:56:35 +0200
+
 postfix-stats (0.3.2-1ubuntu5) unstable; urgency=medium
 
   * fix postinstall script
