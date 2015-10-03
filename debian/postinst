@@ -1,7 +1,7 @@
 #!/bin/sh 
 set -e 
 
-if [ ! -l /usr/bin/postfix-stats ] ; then 
+if [ ! -L /usr/bin/postfix-stats ] ; then 
    ln -s /usr/bin/postfix_stats.py /usr/bin/postfix-stats
 fi
 
