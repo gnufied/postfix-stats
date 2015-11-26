@@ -32,7 +32,17 @@ class TestSmtpHandler(unittest.TestCase):
             parser = postfix_stats.Parser(get_line_reader(line))
             parser.parse_line(line)
             self.assertEqual(postfix_stats.stats['send']['status']['sent'], 1)
+            self.assertEqual(postfix_stats.stats['send']['queue']['postfix-sendgrid']['sent'], 1)
 
+class TestSmtpRecv(unittest.TestCase):
+    def test_recv(self):
+        line = "Nov 26 06:40:24 smtp-foobar postfix-sendgrid-high/smtpd[4701]: 65CE58285A: client=unknown[10.0.0.19]"
+        handlers = (postfix_stats.SmtpdHandler(), postfix_stats.SmtpHandler())
+        with patch.object(postfix_stats.Parser, 'start', return_value=None):
+            parser = postfix_stats.Parser(get_line_reader(line))
+            parser.parse_line(line)
+            self.assertEqual(postfix_stats.stats['recv']['all'], 1)
+            self.assertEqual(postfix_stats.stats['recv']['queue']['postfix-sendgrid-high'], 1)
 
 
 if __name__ == "__main__":
