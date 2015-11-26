@@ -14,6 +14,7 @@ import logging
 import re
 import SocketServer
 import sys
+import pdb
 
 from collections import defaultdict, Iterator
 from optparse import OptionParser
@@ -59,7 +60,6 @@ class Handler(object):
     @classmethod
     def parse(self, facility, line):
         pline = self.filter_re.match(line)
-
         if pline:
             logger.debug(pline.groupdict())
             self.handle(facility, **pline.groupdict())
@@ -189,7 +189,7 @@ class Parser(Thread):
     def invoke_handler(self, pline):
         facility = pline['facility'].split('/')
         for handler in handlers[facility[-1]]:
-            handler.parse(pline['message'])
+            handler.parse(facility, pline['message'])
 
 
 class ParserPool(object):
