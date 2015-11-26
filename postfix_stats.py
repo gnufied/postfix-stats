@@ -57,15 +57,15 @@ class Handler(object):
         self.register(self.facilities)
 
     @classmethod
-    def parse(self, line):
+    def parse(self, facility, line):
         pline = self.filter_re.match(line)
 
         if pline:
             logger.debug(pline.groupdict())
-            self.handle(**pline.groupdict())
+            self.handle(facility, **pline.groupdict())
 
     @classmethod
-    def handle(self, **kwargs):
+    def handle(self, facility, **kwargs):
         raise NotImplementedError()
 
     def register(self, facilities):
@@ -82,7 +82,7 @@ class BounceHandler(Handler):
     filter_re = re.compile((r'\A(?P<message_id>\w+?): sender non-delivery notification: (?P<bounce_message_id>\w+?)\Z'))
 
     @classmethod
-    def handle(self, message_id=None, bounce_message_id=None):
+    def handle(self, facility, message_id=None, bounce_message_id=None):
         pass
 
 
@@ -91,7 +91,7 @@ class CleanupHandler(Handler):
     filter_re = re.compile(r'\A(?P<message_id>\w+?): message-id=\<(?P<ext_message_id>.+?)\>\Z')
 
     @classmethod
-    def handle(self, message_id=None, ext_message_id=None):
+    def handle(self, facility, message_id=None, ext_message_id=None):
         pass
 
 
@@ -108,7 +108,7 @@ class LocalHandler(Handler):
             self.__class__.local_addresses_re = local_addresses_re
 
     @classmethod
-    def handle(self, message_id=None, to_email=None, orig_to_email=None, relay=None, delay=None, delays=None, dsn=None, status=None, response=None):
+    def handle(self, facility, message_id=None, to_email=None, orig_to_email=None, relay=None, delay=None, delays=None, dsn=None, status=None, response=None):
         pemail = self.local_addresses_re.search(to_email)
 
         if pemail:
@@ -130,7 +130,7 @@ class QmgrHandler(Handler):
     filter_re = re.compile(r'\A(?P<message_id>\w+?): (?:(?P<removed>removed)|(?:from=\<(?P<from_address>.*?)\>, size=(?P<size>[0-9]+), nrcpt=(?P<nrcpt>[0-9]+) \(queue (?P<queue>[a-z]+)\)))?\Z')
 
     @classmethod
-    def handle(self, message_id=None, removed=None, from_address=None, size=None, nrcpt=None, queue=None):
+    def handle(self, facility, message_id=None, removed=None, from_address=None, size=None, nrcpt=None, queue=None):
         pass
 
 
@@ -139,7 +139,7 @@ class SmtpHandler(Handler):
     filter_re = re.compile(r'\A(?P<message_id>\w+?): to=\<(?P<to_email>.+?)\>, relay=(?P<relay>.+?), (?:conn_use=(?P<conn_use>\d), )?delay=(?P<delay>[0-9\.]+), delays=(?P<delays>[0-9\.\/]+), dsn=(?P<dsn>[0-9\.]+), status=(?P<status>\w+) \((?P<response>.+?)\)\Z')
 
     @classmethod
-    def handle(self, message_id=None, to_email=None, relay=None, conn_use=None, delay=None, delays=None, dsn=None, status=None, response=None):
+    def handle(self, facility, message_id=None, to_email=None, relay=None, conn_use=None, delay=None, delays=None, dsn=None, status=None, response=None):
         with stats_lock:
             stat = 'recv' if '127.0.0.1' in relay else 'send'
             stats[stat]['status'][status] += 1
@@ -151,7 +151,7 @@ class SmtpdHandler(Handler):
     filter_re = re.compile(r'\A(?P<message_id>\w+?): client=(?P<client_hostname>[.\w-]+)\[(?P<client_ip>[A-Fa-f0-9.:]{3,39})\](?:, sasl_method=[\w-]+)?(?:, sasl_username=[-_.@\w]+)?(?:, sasl_sender=\S)?(?:, orig_queue_id=\w+)?(?:, orig_client=(?P<orig_client_hostname>[.\w-]+)\[(?P<orig_client_ip>[A-Fa-f0-9.:]{3,39})\])?\Z')
 
     @classmethod
-    def handle(self, message_id=None, client_hostname=None, client_ip=None, orig_client_hostname=None, orig_client_ip=None):
+    def handle(self, facility, message_id=None, client_hostname=None, client_ip=None, orig_client_hostname=None, orig_client_ip=None):
         ip = orig_client_ip or client_ip
         with stats_lock:
             stats['clients'][ip] += 1
@@ -184,11 +184,12 @@ class Parser(Thread):
         if pln:
             pline = pln.groupdict()
             logger.debug(pline)
+            self.invoke_handler(pline)
 
-            facility = pline['facility'].split('/')
-
-            for handler in handlers[facility[-1]]:
-                handler.parse(pline['message'])
+    def invoke_handler(self, pline):
+        facility = pline['facility'].split('/')
+        for handler in handlers[facility[-1]]:
+            handler.parse(pline['message'])
 
 
 class ParserPool(object):
