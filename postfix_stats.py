@@ -75,6 +75,10 @@ class Handler(object):
     def handle(self, facility, **kwargs):
         raise NotImplementedError()
 
+    @staticmethod
+    def queue_name(facility):
+        return re.sub(r'postfix-', "", facility)
+
     def register(self, facilities):
         facilities = set(facilities)
         for facility in facilities:
@@ -147,12 +151,12 @@ class SmtpHandler(Handler):
 
     @classmethod
     def handle(self, facility, message_id=None, to_email=None, relay=None, conn_use=None, delay=None, delays=None, dsn=None, status=None, response=None):
-        queue_name = facility[0]
+        postfix_queue_name = self.queue_name(facility[0])
         with stats_lock:
             stat = 'recv' if '127.0.0.1' in relay else 'send'
             stats[stat]['status'][status] += 1
             stats[stat]['resp_codes'][dsn] += 1
-            stats[stat]['queue'][queue_name][status] += 1
+            stats[stat]['queue'][postfix_queue_name][status] += 1
 
 
 class SmtpdHandler(Handler):
@@ -162,11 +166,11 @@ class SmtpdHandler(Handler):
     @classmethod
     def handle(self, facility, message_id=None, client_hostname=None, client_ip=None, orig_client_hostname=None, orig_client_ip=None):
         ip = orig_client_ip or client_ip
-        queue_name = facility[0]
+        postfix_queue_name = self.queue_name(facility[0])
         with stats_lock:
             stats['clients'][ip] += 1
             stats['recv']['all'] += 1
-            stats['recv']['queue'][queue_name] += 1
+            stats['recv']['queue'][postfix_queue_name] += 1
 
 
 
