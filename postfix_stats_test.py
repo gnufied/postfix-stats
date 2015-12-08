@@ -32,7 +32,7 @@ class TestSmtpHandler(unittest.TestCase):
             parser = postfix_stats.Parser(get_line_reader(line))
             parser.parse_line(line)
             self.assertEqual(postfix_stats.stats['send']['status']['sent'], 1)
-            self.assertEqual(postfix_stats.stats['send']['queue']['postfix-sendgrid']['sent'], 1)
+            self.assertEqual(postfix_stats.stats['send']['queue']['sendgrid']['sent'], 1)
 
 class TestSmtpRecv(unittest.TestCase):
     def test_recv(self):
@@ -42,7 +42,7 @@ class TestSmtpRecv(unittest.TestCase):
             parser = postfix_stats.Parser(get_line_reader(line))
             parser.parse_line(line)
             self.assertEqual(postfix_stats.stats['recv']['all'], 1)
-            self.assertEqual(postfix_stats.stats['recv']['queue']['postfix-sendgrid-high'], 1)
+            self.assertEqual(postfix_stats.stats['recv']['queue']['sendgrid-high'], 1)
 
 
 if __name__ == "__main__":
