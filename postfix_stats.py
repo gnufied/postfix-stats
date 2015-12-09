@@ -48,7 +48,7 @@ stats['in'] = {
     'queue': defaultdict(lambda:defaultdict(int)),
 }
 
-stats['clients'] = defaultdict(int)
+stats['clients'] = defaultdict(lambda:defaultdict(int))
 stats['local'] = defaultdict(int)
 
 local_addresses = {}
@@ -168,9 +168,7 @@ class SmtpdHandler(Handler):
         ip = orig_client_ip or client_ip
         postfix_queue_name = self.queue_name(facility[0])
         with stats_lock:
-            stats['clients'][ip] += 1
-            stats['recv']['all'] += 1
-            stats['recv']['queue'][postfix_queue_name] += 1
+            stats['clients'][postfix_queue_name][ip] += 1
 
 
 

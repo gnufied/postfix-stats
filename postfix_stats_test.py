@@ -41,8 +41,7 @@ class TestSmtpRecv(unittest.TestCase):
         with patch.object(postfix_stats.Parser, 'start', return_value=None):
             parser = postfix_stats.Parser(get_line_reader(line))
             parser.parse_line(line)
-            self.assertEqual(postfix_stats.stats['recv']['all'], 1)
-            self.assertEqual(postfix_stats.stats['recv']['queue']['sendgrid-high'], 1)
+            self.assertEqual(postfix_stats.stats['clients']['sendgrid-high']['10.0.0.19'], 1)
 
 
 if __name__ == "__main__":
